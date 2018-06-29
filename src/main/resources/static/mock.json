@@ -1,0 +1,417 @@
+{
+  "leftDish": [
+    {
+      "name": "鱼香茄子",
+      "count": 2
+    },
+    {
+      "name": "麻婆豆腐",
+      "count": 1
+    }
+  ],
+  "cooking": [
+    {
+      "pot": "A锅",
+      "name": "回锅肉",
+      "waitNo": [
+        {
+          "orderNo": 2134,
+          "callNo": 2,
+          "time":"12:87"
+        },
+        {
+          "orderNo": 2135,
+          "callNo": null,
+          "time":"12:87"
+        },
+        {
+          "orderNo": 2136,
+          "callNo": 1,
+          "time":"12:87"
+        },
+        {
+          "orderNo": 2137,
+          "callNo": 4,
+          "time":"12:87"
+        }
+      ]
+    },
+    {
+      "pot": "B锅",
+      "name": "水煮鱼",
+      "waitNo": [
+        {
+          "orderNo": 2124,
+          "callNo": 12,
+          "time":"12:87"
+        },
+        {
+          "orderNo": 2125,
+          "callNo": 13,
+          "time":"12:87"
+        },
+        {
+          "orderNo": 2126,
+          "callNo": 11,
+          "time":"12:87"
+        },
+        {
+          "orderNo": 2127,
+          "callNo": 14,
+          "time":"12:87"
+        }
+      ]
+    }
+  ],
+  "waiting": [
+    {
+      "sortNo": 1,
+      "name": "鱼香肉丝",
+      "waitNo": [
+        {
+          "orderNo": 1234,
+          "callNo": 29,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1234,
+          "callNo": 29,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1234,
+          "callNo": 29,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1234,
+          "callNo": 29,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1234,
+          "callNo": 29,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1234,
+          "callNo": 29,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1234,
+          "callNo": 29,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1234,
+          "callNo": 29,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1234,
+          "callNo": 29,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1235,
+          "callNo": 28,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1236,
+          "callNo": 27,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1237,
+          "callNo": 26,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1238,
+          "callNo": 25,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1239,
+          "callNo": 23,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1240,
+          "callNo": 22,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1241,
+          "callNo": 24,
+          "time":"12:26"
+        }
+      ]
+    },
+    {
+      "sortNo": 2,
+      "name": "土豆丝",
+      "waitNo": [
+        {
+          "orderNo": 1234,
+          "callNo": 29,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1235,
+          "callNo": 28,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1236,
+          "callNo": 27,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1237,
+          "callNo": 26,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1238,
+          "callNo": 25,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1239,
+          "callNo": null,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1240,
+          "callNo": 22,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1241,
+          "callNo": 24,
+          "time":"12:26"
+        }
+      ]
+    },
+    {
+      "sortNo": 2,
+      "name": "土豆丝",
+      "waitNo": [
+        {
+          "orderNo": 1234,
+          "callNo": 29,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1235,
+          "callNo": 28,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1236,
+          "callNo": 27,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1237,
+          "callNo": 26,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1238,
+          "callNo": 25,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1239,
+          "callNo": null,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1240,
+          "callNo": 22,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1241,
+          "callNo": 24,
+          "time":"12:26"
+        }
+      ]
+    },
+    {
+      "sortNo": 2,
+      "name": "土豆丝",
+      "waitNo": [
+        {
+          "orderNo": 1234,
+          "callNo": 29,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1235,
+          "callNo": 28,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1236,
+          "callNo": 27,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1237,
+          "callNo": 26,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1238,
+          "callNo": 25,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1239,
+          "callNo": null,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1240,
+          "callNo": 22,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1241,
+          "callNo": 24,
+          "time":"12:26"
+        }
+      ]
+    },
+    {
+      "sortNo": 3,
+      "name": "甜椒肉丝",
+      "waitNo": [
+        {
+          "orderNo": 1234,
+          "callNo": 29,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1235,
+          "callNo": 28,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1236,
+          "callNo": 27,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1237,
+          "callNo": 26,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1238,
+          "callNo": 25,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1239,
+          "callNo": null,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1240,
+          "callNo": 22,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1241,
+          "callNo": 24,
+          "time":"12:26"
+        }
+      ]
+    },
+    {
+      "sortNo": 4,
+      "name": "铁板牛柳",
+      "waitNo": [
+        {
+          "orderNo": 1234,
+          "callNo": 29,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1235,
+          "callNo": 28,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1236,
+          "callNo": 27,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1237,
+          "callNo": 26,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1238,
+          "callNo": 25,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1239,
+          "callNo": 23,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1240,
+          "callNo": null,
+          "time":"12:26"
+        },
+        {
+          "orderNo": 1241,
+          "callNo": null,
+          "time":"12:26"
+        }
+      ]
+    }
+  ],
+  "ready": [
+    {
+      "orderNo": 2134,
+      "callNo": 2,
+      "time": "36:56"
+    },
+    {
+      "orderNo": 2134,
+      "callNo": 2,
+      "time": "36:56"
+    },
+    {
+      "orderNo": 2134,
+      "callNo": 2,
+      "time": "36:56"
+    },
+
+    {
+      "orderNo": 2135,
+      "callNo": 3,
+      "time": "36:56"
+    },
+    {
+      "orderNo": 2136,
+      "callNo": null,
+      "time": "36:56"
+    },
+    {
+      "orderNo": 2137,
+      "callNo": 4,
+      "time": "36:56"
+    }
+  ]
+}

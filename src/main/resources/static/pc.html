@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="./css/base.css">
+    <link rel="stylesheet" href="./css/style.css">
+    <link href="./css/bootstrap.css" rel="stylesheet">
+    <script src="./js/jquery.js"></script>
+    <script src="./js/bootstrap.js"></script>
+    <script src="./js/template-web.js"></script>
+    <script src="./js/script.js"></script>
+    <script src="./js/keybord.js"></script>
+</head>
+<body>
+<div class="container-full">
+    <input id="defult" class="hide" type="text">
+    <div class="left fl col-xs-6">
+        <div class="left-top pd10 ">
+            <p class="wait fc-white ft20 title" style="font-weight: bold">今日菜单</p>
+            <div class="content row list" id="TODAYDISH">
+                <!--今日菜单-->
+            </div>
+        </div>
+        <div class="left-middle" style="min-height:280px;">
+            <p class="wait fc-white ft20 title" style="font-weight: bold">取餐区</p>
+            <div class="content  list" id="WAIT">
+                <!--等待取餐-->
+            </div>
+        </div>
+        <div class="left-bottom " style="border-top:2px solid #aaa;">
+            <p class="wait fc-white ft20 title" style="font-weight: bold">监控区</p>
+            <div class="content row list" id="WATCH">
+                <!--监控区域-->
+            </div>
+        </div>
+    </div>
+    <div class="right fl col-xs-6">
+        <div class="right-top pd10" style="min-height: 280px;border-bottom:2px solid #aaa;">
+            <p class="wait fc-white ft20 title" style="padding-left: 15px;font-weight: bold">制作中</p>
+            <div class="content row list" id="DOING">
+                <!--制作中-->
+            </div>
+        </div>
+        <div class="right-bottom">
+            <p class="wait fc-white ft20 title" style="font-weight: bold">排队菜品</p>
+            <div class="content list" style="max-width: 100%;overflow: hidden;" id="WAITDESH">
+                <!--排队菜品-->
+            </div>
+        </div>
+    </div>
+    <div class="right-bottom fl btn-group">
+        <button type="button" class="btn big-btn" style="right: 110px" id="clear">清空</button>
+        <button type="button" class="btn big-btn" style="right: 10px" id="close">退出</button>
+    </div>
+</div>
+
+
+<!--输入排队信息-->
+<!-- Modal -->
+<div class="modal fade" id="WaitingModal" tabindex="-1" aria-hidden="true" data-backdrop="static" data-keyboard="false"
+     role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">输入排队号</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-inline">
+                    <div class="form-group">
+                        <label for="WaitingModalInput">排队号：</label>
+                        <input readonly="readonly" style="outline:none;" type="number" class="form-control"
+                               id="WaitingModalInput" placeholder="请输入排队号码">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer btn-group">
+                <button type="button" class="btn btn-default" onclick="closeModal()">取消</button>
+                <button type="button" class="btn btn-primary" onclick="submitWait()">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--制作中-->
+<!-- Modal -->
+<div class="modal fade" id="DOINGModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">菜品状态</h4>
+            </div>
+            <div class="modal-body">
+                <h5>是否标记为已制作完成？</h5>
+            </div>
+            <div class="modal-footer btn-group">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="submitDo()">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--等待取餐-->
+<!-- Modal -->
+<div class="modal fade" id="ReadyModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">等待状态</h4>
+            </div>
+            <div class="modal-body">
+                <h5>是否标记用户以取走？</h5>
+            </div>
+            <div class="modal-footer btn-group">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="submitReady()">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--现成菜品-->
+<script id="TODAYDISHTPL" type="text/html">
+    <div class="line today-dish">
+        <ul class="">
+            {{each list value index}}
+            <li style="font-size: 25px;font-weight: 800;">
+                <span>{{value.name}}</span>
+                <span class="fr">￥{{value.price}}</span>
+            </li>
+            {{/each}}
+        </ul>
+    </div>
+</script>
+<!--等待取餐-->
+<script id="WAITTPL" type="text/html">
+    <ul class="ready">
+        {{if ready.length != 0}}
+        {{each ready value index}}
+        <li onclick="submitReady('{{value.callNo}}','{{value.id}}')" style="padding:0!important;">
+            <p style="font-size:22px;font-weight: 800;margin:0!important;">{{value.callNo}}</p>
+            <p style="font-size:18px;font-weight: 800;margin:0!important;">{{value.dishName}}</p>
+            <p style="font-size:15px;font-weight: 800;margin:0!important;">{{value.time}}</p>
+        </li>
+        {{/each}}
+        {{else}}
+        <p class="ft16 fc-cc">暂无数据</p>
+        {{/if}}
+    </ul>
+</script>
+<!--监控地址-->
+<script id="WATCHTPL" type="text/html">
+    {{each watch}}
+    <div class="col-md-11 item">
+        <div class="item-panel" style="min-height: 300px;">
+            <iframe name="myiframe" src="{{$value}}" frameborder="0" align="left" width="100%" height="100%"
+                    scrolling="no"></iframe>
+        </div>
+    </div>
+    {{/each}}
+</script>
+<!--制作中-->
+<script id="DOINGTPL" type="text/html">
+    <div class="item">
+        {{if cooking.length != 0}}
+        {{each cooking value index}}
+        <div class="col-xs-6">
+            <p class="ft24 dish-name" style="padding-left: 15px;font-weight: 800">{{value.name}}</p>
+            <div class="">
+                {{each value.waitNo val key}}
+                <div class="col-xs-6 tac" style="margin-bottom: 10px">
+                    <div class="dish" onclick="changeStatus(event,'{{val.id}}',1)"><span
+                            class="" style="font-size:28px;font-weight: 800;">{{val.callNo}}</span> <br> {{val.time}}
+                    </div>
+                </div>
+                {{/each}}
+            </div>
+        </div>
+        {{/each}}
+        {{else}}
+        <p class="ft16 fc-cc" style="margin-left: 30px">暂无数据</p>
+        {{/if}}
+    </div>
+</script>
+<!--排队菜品-->
+<script id="WAITDESHTPL" type="text/html">
+    {{if waiting.length != 0}}
+    {{each waiting value index}}
+    <ul class="wait-dish" style="font-size: 22px;font-weight: 600">
+        <li style="min-width: 160px!important;">{{value.name}}(已点{{value.size}}份)</li>
+        {{each value.waitNo val i}}
+        {{if val.callNo}}
+        <li onclick="changeStatus(event,'{{val.id}}',1)">{{val.callNo}} <br> <span
+                class="ft12">{{val.time}}</span></li>
+        {{else}}
+        <li onclick="changeStatus(event,'{{val.id}}',0)" style="color: red">{{val.orderNo}}<br> <span
+                class="ft12">{{val.time}}</span>
+        </li>
+        {{/if}}
+        {{/each}}
+    </ul>
+    {{/each}}
+    {{else}}
+    <p class="ft16 fc-cc" style="margin-left: 15px">暂无数据</p>
+    {{/if}}
+</script>
+<script>
+    watch();
+    function watch() {
+        $.ajax({
+            url: 'monitor',
+            type: 'get',
+            success: function (resp) {
+                $('#WATCH').html(template('WATCHTPL', {
+                    watch: resp
+                }));
+            }
+        });
+    }
+    //    获取背景图片
+    ChangeBg();
+    function ChangeBg() {
+        $.ajax({
+            url: 'background',
+            type: 'get',
+            success: function (res) {
+                $('.container-full').css('background-image', 'url(' + res + ')')
+            }
+        });
+    }
+    //    获取今日菜品
+    Getmenu();
+    function Getmenu() {
+        $.ajax({
+            url: 'menu',
+            type: 'get',
+            success: function (desh) {
+                $('#TODAYDISH').html(template('TODAYDISHTPL', {
+                    list: desh
+                }));
+            }
+        });
+    }
+</script>
+<script>
+    $('#close').on('click', function () {
+        $.confirm({
+            'title': '',
+            'message': '确认退出本系统?',
+            'buttons': {
+                '确定': {
+                    'class': 'blue',
+                    'action': function () {
+                        window.opener = null;
+                        var w = window.open("", "_self");
+                        w.close();
+                        window.close();
+                    }
+                },
+                '取消': {
+                    'class': 'gray',
+                    'action': function () {
+                    }	// Nothing to do in this case. You can as well omit the action property.
+                }
+            }
+        });
+    });
+
+    $('#clear').on('click', function () {
+        $.confirm({
+            'title': '',
+            'message': '确认清空列表?',
+            'buttons': {
+                '确定': {
+                    'class': 'blue',
+                    'action': function () {
+                        $.ajax({
+                            url: 'clear',
+                            type: 'get',
+                            data: {}
+                        });
+                    }
+                },
+                '取消': {
+                    'class': 'gray',
+                    'action': function () {
+                    }	// Nothing to do in this case. You can as well omit the action property.
+                }
+            }
+        });
+    });
+
+    //    init();
+    setInterval(function () {
+        init();
+    }, 1000);
+    function init() {
+        $.ajax({
+            url: 'queue',
+            type: 'get',
+            success: function (res) {
+//                if (res.ready.length >= 12) {
+//                    $('.left-middle').css('height', '-webkit-fill-available!important');
+//                    $('.left-top').removeClass('');
+//                    $('.left-bottom').removeClass('visible-lg');
+//                    $('.left-top').css({'display': 'none', 'min-height': '0px'});
+//                    $('.left-bottom').css('display', 'none')
+//                }
+//                else {
+//                    $('.left-middle').css('height', 'auto!important');
+//                    $('.left-top').addClass('visible-lg');
+//                    $('.left-bottom').addClass('visible-lg');
+//                    $('.left-top').css({'display': 'block', 'height': '280px'});
+//                    $('.left-bottom').css('display', 'block')
+//                }
+                $('#WAIT').html(template('WAITTPL', res));
+                $('#DOING').html(template('DOINGTPL', res));
+                $('#WAITDESH').html(template('WAITDESHTPL', res));
+            }
+        });
+    }
+
+
+    function changeStatus(e, orderId, state) {
+        if (1 == state) {
+            $.ajax({
+                url: 'change',
+                type: 'get',
+                data: {
+                    id: orderId,
+                    state: state
+                },
+                success: function (res) {
+                    if (res != 0) {
+                        alert('系统错误');
+                        return false;
+                    }
+                    init();
+                }
+            });
+        } else {
+            InputkeyBord(e, orderId);
+        }
+    }
+
+    /***
+     * 录入排队号
+     * @param orderId
+     * @param waitOrder
+     */
+    var waitOrder;
+    function InputkeyBord(event, orderId) {
+        stopEvent(event);
+        var input1 = document.getElementById('defult');
+        new KeyBoard(input1, null, orderId);
+        waitOrder = orderId;
+        $("#__w_l_h_v_c_z_e_r_o_divid").SliderObject($("#__w_l_h_v_c_z_e_r_o_divid"));
+    }
+    function submitWait(orderId, value) {
+        $.ajax({
+            url: 'bind',
+            type: 'get',
+            data: {
+                id: orderId,
+                callNo: value
+            },
+            success: function (res) {
+                if (res != 0) {
+                    alert('系统错误');
+                    return false;
+                }
+                $('#WaitingModal').modal('hide');
+                $('#__w_l_h_v_c_z_e_r_o_divid').remove();
+                init();
+            }
+        });
+    }
+
+
+    /***
+     * 制作中
+     * @param type
+     * @param DoOrder
+     */
+    var DoOrder;
+    function openDoModal(event, type) {
+
+        stopEvent(event);
+
+        $('#DOINGModal').modal('show');
+        DoOrder = type;
+    }
+    function submitDo() {
+        $.ajax({
+            url: 'changeStatus',
+            type: 'get',
+            data: {
+                pot: DoOrder
+            },
+            success: function (res) {
+                if (res != 0) {
+                    alert('系统错误');
+                    return false;
+                }
+                $('#DOINGModal').modal('hide');
+                init();
+            }
+        });
+    }
+
+    /***
+     * 等待取餐
+     * @param type
+     * @param DoOrder
+     */
+    var ReadyOrderNo;
+    var ReadyCallNo;
+    function openReadyModal(callNo, id) {
+        $('#ReadyModal').modal('show');
+        ReadyOrderNo = id;
+        ReadyCallNo = callNo;
+    }
+    function submitReady(callNo, id) {
+        $.ajax({
+            url: 'remove',
+            type: 'get',
+            data: {
+                callNo: callNo,
+                id: id
+            },
+            success: function (res) {
+                console.log(res)
+                if (res != 0) {
+                    alert('系统错误');
+                    return false;
+                }
+                $('#ReadyModal').modal('hide');
+                init();
+            }
+        });
+    }
+
+
+    function closeModal() {
+        $('#WaitingModal').modal('hide');
+        $('#__w_l_h_v_c_z_e_r_o_divid').remove();
+    }
+
+    //注册一个Jquery的鼠标拖动函数,参数为要拖动的对象
+    $.fn.extend({
+        SliderObject: function (objMoved) {
+            var mouseDownPosiX;
+            var mouseDownPosiY;
+            var InitPositionX;
+            var InitPositionY;
+            var obj = $(objMoved) == undefined ? $(this) : $(objMoved);
+            $(this).mousedown(function (e) {
+                //当鼠标按下时捕获鼠标位置以及对象的当前位置
+                mouseDownPosiX = e.pageX;
+                mouseDownPosiY = e.pageY;
+                InitPositionX = obj.css("left").replace("px", "");
+                InitPositionY = obj.css("top").replace("px", "");
+                obj.mousemove(function (e) {//这个地方改成$(document).mousemove貌似可以避免因鼠标移动太快而失去焦点的问题
+                    //貌似只有IE支持这个判断，Chrome和Firefox还没想到好的办法
+                    //if ($(this).is(":focus")) {
+                    var tempX = parseInt(e.pageX) - parseInt(mouseDownPosiX) + parseInt(InitPositionX);
+                    var tempY = parseInt(e.pageY) - parseInt(mouseDownPosiY) + parseInt(InitPositionY);
+                    obj.css("left", tempX + "px").css("top", tempY + "px");
+                    //};
+                    //当鼠标弹起或者离开元素时，将鼠标弹起置为false，不移动对象
+                }).mouseup(function () {
+                    obj.unbind("mousemove");
+                }).mouseleave(function () {
+                    obj.unbind("mousemove");
+                });
+            })
+        }
+    });
+
+
+    function stopEvent(event) {
+        var e = arguments.callee.caller.arguments[0] || event;
+        if (window.event) {
+            e.cancelBubble = true;
+            e.returnValue = false;
+        } else if (e && e.stopPropagation) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
+    }
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,46 @@
+LnTxt_jno: 1
+LnTxt_times: 0
+numberNameSplit: \:
+maxButtonNumber: 6
+Program_jno: 1
+SerialPortPara_comno: 1
+ConType: 3
+Control_pno: 1
+LnTxt_fontsize: 10
+LnTxt_qno: 1
+LnTxt_italic: false
+TransMode: 2
+Program_playTime: 0
+chromePath: C\:\\Program Files\\Google\\Chrome\\Application\\chrome.exe
+LnTxt_pno: 1
+LnTxt_fontname: \u5B8B\u4F53
+Control_DBColor: 1
+Program_pno: 1
+LnTxt_PlayStyle: 16
+LnTxt_bold: true
+LnTxt_fontcolor: 255
+LnTxt_underline: false
+LnTxt_left: 0
+SerialPortPara_baud: 9600
+LnTxt_width: 64
+LnTxt_top: 0
+namesSplit: ,
+autoLineNumber: 4
+onSuccess: 0
+SerialPortPara_pno: 1
+serverPort: 1101
+SendControl_pno: 1
+LnTxt_Playspeed: 30
+SendControl_SendType: 1
+SendControl_hwd: 0
+LnTxt_height: 32
+
+
+vendor_id: 1155
+product_id: 4660
+
+imgPath: file:/C:/Users/Public/Pictures/
+ips: /test.mp4
+
+
+

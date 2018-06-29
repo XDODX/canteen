@@ -1,0 +1,398 @@
+html {
+    background: #f5f5f5;
+    position: static;
+}
+
+.container-full {
+    background-image: url("../images/bg.jpg");
+    background-repeat: no-repeat;
+    background-position: 50%;
+    background-size: 100% 100%;
+    min-height: 100%;
+    width: 100%;
+    color: #000;
+    position: absolute;
+}
+
+.container-full .layer {
+    background: rgba(9, 9, 9, 0.3);
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.container-full .left {
+    padding: 0;
+    height: 100%;
+    /*border-right: 6px solid #ccc;*/
+}
+
+.container-full .left .left-top {
+    min-height:280px;
+    border-bottom: 2px solid #aaa;
+    /*padding: 15px;*/
+}
+
+.container-full .left .left-top .today-dish {
+    padding: 0 15px;
+}
+
+.container-full .left .left-top .today-dish ul li {
+    background: #bce8f1;
+    /*border: 1px solid #ccc;*/
+    padding: 2px 12px;
+    margin-top: 5px;
+    float: left;
+    width: 48%;
+    margin-right: 5px;
+}
+
+.container-full .left .left-top .item .item-panel {
+    margin: 10px;
+    height: 2.5rem;
+    border: 1px solid #f5f5f5;
+    border-radius: 10px;
+    background: url("../images/food.jpg") 50%;
+    background-size: 100%;
+    box-shadow: 0 0 5px #888;
+}
+
+.container-full .left .left-middle {
+    min-height: 3rem;
+    /*padding: 15px;*/
+    padding-left: 3px;
+}
+
+.container-full .left .left-middle .icon {
+    width: 0.5rem;
+    height: 0.5rem;
+    display: inline-block;
+    background: url("../images/body.png") 50%;
+    background-size: 100%;
+    margin-right: 10px;
+}
+
+.container-full .left .left-middle .ready {
+    font-size: 12px;
+    width: 100%;
+}
+
+.container-full .left .left-middle .ready li {
+    background: #5cb85c;
+    /* &:nth-of-type(1){
+       padding-top: 25px;
+       font-size: 18px;
+     }*/
+    width: 100px;
+    height: 80px;
+    float: left;
+    border: 1px solid #ccc;
+    padding-top: 18px;
+    margin-right: 5px;
+    margin-top: 5px;
+    text-align: center;
+}
+
+.container-full .left .left-bottom {
+    clear: both;
+    /*border-bottom: 2px solid #aaa;*/
+    padding: 15px;
+}
+
+.container-full .left .left-bottom .item .item-panel {
+    margin: 10px;
+    height: 2rem;
+    border: 1px solid #f5f5f5;
+    border-radius: 10px;
+}
+
+.container-full .right {
+    padding-left: 0;
+    border-left:6px solid #ccc;
+    height: -webkit-fill-available;
+}
+
+.container-full .right .right-top .item .dish-name {
+    font-size: 24px;
+}
+
+.container-full .right .right-top .item .dish {
+    padding: 0.2rem;
+    border: 1px solid #ccc;
+    font-size: 12px;
+    background: #F8C69A;
+}
+
+.container-full .right .right-top .item .item-panel {
+    margin: 10px;
+    height: 2.8rem;
+    border: 1px solid #f5f5f5;
+    border-radius: 10px;
+    background: url("../images/food.jpg") 50%;
+    background-size: 100%;
+    box-shadow: 0 0 5px #888;
+}
+
+.container-full .right .right-top .item .waiting .col-md-1 {
+    padding: 0;
+    margin: 10px;
+}
+
+.container-full .right .right-top .item .waiting .icon {
+    width: 0.5rem;
+    height: 0.5rem;
+    display: inline-block;
+    background: url("../images/body.png") 50%;
+    background-size: 100%;
+    margin-right: 10px;
+}
+
+.container-full .right .right-bottom {
+    padding-left: 30px;
+    padding-top: 10px;
+}
+
+.container-full .right .right-bottom .wait-dish {
+    clear: both;
+}
+
+.container-full .right .right-bottom .wait-dish li {
+    background: #5bc0de;
+    float: left;
+    font-size: 18px;
+    border: 1px solid #ccc;
+    text-align: center;
+    border-right: 1px dashed #ccc;
+    border-left: 1px dashed #ccc;
+    width: 90px;
+    height: 70px;
+    padding-top: 10px;
+}
+
+.container-full .right .right-bottom .wait-dish li:nth-of-type(1) {
+    min-width: 100px;
+    height: 70px;
+    line-height: 70px;
+    padding-top: 0;
+    background-color: coral;
+    margin-top: 0;
+}
+
+.container-full .right .right-bottom .item {
+    border: 1px solid #fff;
+    border-radius: 10px;
+    background: white;
+    display: flex;
+    flex: none;
+    margin: 6px auto;
+    position: relative;
+    width: var(--downloads-card-width);
+    box-shadow: 0 0 5px #888;
+    -webkit-transition: background 0.2s ease-in-out, top 0.2s linear;
+    transition: background 0.2s ease-in-out, top 0.2s linear;
+}
+
+.container-full .right .right-bottom .item:hover {
+    box-shadow: 0 0 10px #666;
+    margin-top: 5px;
+    margin-bottom: 7px;
+}
+
+.container-full .right .right-bottom .item .item-panel {
+    position: relative;
+    color: burlywood;
+}
+
+.container-full .right .right-bottom .item .item-panel .image {
+    width: 3rem;
+}
+
+.container-full .right .right-bottom .item .item-panel .list-detail-box {
+    position: relative;
+    margin-left: 3rem;
+}
+
+.container-full .right .right-bottom .item .item-panel .icon {
+    width: 0.5rem;
+    height: 0.5rem;
+    display: inline-block;
+    background: url("../images/body.png") 50%;
+    background-size: 100%;
+    margin-right: 10px;
+}
+
+.container-full .right .right-bottom ins, .container-full .right .right-bottom a {
+    text-decoration: none;
+    color: #F8C69A;
+}
+
+.container-full .icon {
+    animation: waiting 2s infinite;
+}
+
+.container-full a:hover {
+    text-decoration: none;
+    color: #F8C69A;
+}
+
+.container-full a:visited {
+    text-decoration: none;
+    color: #F8C69A;
+}
+
+.container-full ins, .container-full a {
+    text-decoration: none;
+    color: #fff;
+}
+
+.container-full a:focus, .container-full *:focus {
+    outline: none;
+}
+
+.modal-footer {
+    width: 50%;
+    margin-left: calc(25% - 10px);
+}
+
+.modal-footer .btn {
+    width: 49%;
+    height: 50px;
+}
+
+@keyframes waiting {
+    0% {
+        transform: translate(0px, 0px);
+    }
+    50% {
+        transform: translate(0px, -5px);
+    }
+    100% {
+        transform: translate(0px, 0px);
+    }
+}
+
+.big-btn {
+    position: fixed !important;
+    bottom: 20px !important;
+    padding: 10px 16px !important;
+    font-size: 28px !important;
+    line-height: 2.3333333 !important;
+    border-radius: 10px !important;
+}
+
+/*# sourceMappingURL=style.css.map */
+
+#confirmOverlay {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: url('../images/ie.png');
+    background: -moz-linear-gradient(rgba(11, 11, 11, 0.1), rgba(11, 11, 11, 0.6)) repeat-x rgba(11, 11, 11, 0.2);
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(rgba(11, 11, 11, 0.1)), to(rgba(11, 11, 11, 0.6))) repeat-x rgba(11, 11, 11, 0.2);
+    z-index: 100000;
+}
+
+#confirmBox {
+    background: url('../images/body_bg.jpg') repeat-x left bottom #e5e5e5;
+    width: 400px;
+    height: 150px;
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    margin: -130px 0 0 -230px;
+    border: 1px solid rgba(33, 33, 33, 0.6);
+    -moz-box-shadow: 0 0 2px rgba(255, 255, 255, 0.6) inset;
+    -webkit-box-shadow: 0 0 2px rgba(255, 255, 255, 0.6) inset;
+    box-shadow: 0 0 2px rgba(255, 255, 255, 0.6) inset;
+}
+
+#confirmBox h1,
+#confirmBox p {
+    font: 26px/1 'Cuprum', 'Lucida Sans Unicode', 'Lucida Grande', sans-serif;
+    background: url('../images/header_bg.jpg') repeat-x left bottom #f5f5f5;
+    padding: 18px 25px;
+    text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.6);
+    color: #666;
+}
+
+#confirmBox h1 {
+    margin: 0;
+    padding: 0;
+    letter-spacing: 0.3px;
+    color: #888;
+}
+
+#confirmBox label {
+    background: none;
+    font-size: 16px;
+    line-height: 1.4;
+    padding-top: 35px;
+}
+
+#confirmButtons {
+    padding: 15px 0 25px;
+    text-align: center;
+}
+
+#confirmBox .button {
+    display: inline-block;
+    background: url('../images/buttons.png') no-repeat;
+    color: white;
+    position: relative;
+    height: 33px;
+    width: 120px;
+    font: 17px/33px 'Cuprum', 'Lucida Sans Unicode', 'Lucida Grande', sans-serif;
+
+    margin-right: 15px;
+    padding: 0 35px 0 40px;
+    text-decoration: none;
+    border: none;
+}
+
+#confirmBox .button:last-child {
+    margin-right: 0;
+}
+
+#confirmBox .button span {
+    position: absolute;
+    top: 0;
+    right: -5px;
+    background: url('../images/buttons.png') no-repeat;
+    width: 5px;
+    height: 33px
+}
+
+#confirmBox .blue {
+    background-position: left top;
+    text-shadow: 1px 1px 0 #5889a2;
+}
+
+#confirmBox .blue span {
+    background-position: -195px 0;
+}
+
+#confirmBox .blue:hover {
+    background-position: left bottom;
+}
+
+#confirmBox .blue:hover span {
+    background-position: -195px bottom;
+}
+
+#confirmBox .gray {
+    background-position: -200px top;
+    text-shadow: 1px 1px 0 #707070;
+}
+
+#confirmBox .gray span {
+    background-position: -395px 0;
+}
+
+#confirmBox .gray:hover {
+    background-position: -200px bottom;
+}
+
+#confirmBox .gray:hover span {
+    background-position: -395px bottom;
+}
