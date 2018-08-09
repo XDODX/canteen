@@ -38,8 +38,8 @@
         </div>
     </div>
     <div class="right-bottom fl btn-group">
-        <button type="button" class="btn big-btn" style="right: 110px" id="clear">清空</button>
-        <button type="button" class="btn big-btn" style="right: 10px" id="close">退出</button>
+        <button type="button" class="btn big-btn" style="left: 10px" id="clear">清空</button>
+        <button type="button" class="btn big-btn" style="left: 110px" id="close">退出</button>
     </div>
 </div>
 
@@ -135,7 +135,7 @@
         {{each ready value index}}
         <li onclick="submitReady('{{value.callNo}}','{{value.id}}')" style="padding:0!important;">
             <p style="font-size:22px;font-weight: 800;margin:0!important;">{{value.callNo}}</p>
-            <p style="font-size:18px;font-weight: 800;margin:0!important;">{{value.dishName}}</p>
+            <p style="font-size:13px;font-weight: 800;margin:0!important;">{{value.dishName}}</p>
             <p style="font-size:15px;font-weight: 800;margin:0!important;">{{value.time}}</p>
         </li>
         {{/each}}
@@ -183,13 +183,13 @@
     {{if waiting.length != 0}}
     {{each waiting value index}}
     <ul class="wait-dish" style="font-size: 22px;font-weight: 600">
-        <li style="min-width: 160px!important;">{{value.name}}(已点{{value.size}}份)</li>
+        <li style="min-width: 160px!important;font-size:15px"><p style="height:10px;">{{value.name}}</p><p>({{value.size}}份)</p></li>
         {{each value.waitNo val i}}
         {{if val.callNo}}
-        <li onclick="changeStatus(event,'{{val.id}}',1)">{{val.callNo}} <br> <span
+        <li style="width: calc( 25% - 40px )" onclick="changeStatus(event,'{{val.id}}',1)">{{val.callNo}} <br> <span
                 class="ft12">{{val.time}}</span></li>
         {{else}}
-        <li onclick="changeStatus(event,'{{val.id}}',0)" style="color: red">{{val.orderNo}}<br> <span
+        <li style="width: calc( 25% - 40px )" onclick="changeStatus(event,'{{val.id}}',0)" style="color: red">{{val.orderNo}}<br> <span
                 class="ft12">{{val.time}}</span>
         </li>
         {{/if}}
@@ -226,6 +226,8 @@
                         var w = window.open("", "_self");
                         w.close();
                         window.close();
+                        $.post('close', {}, ()=> {
+                        });
                     }
                 },
                 '取消': {
@@ -290,7 +292,6 @@
             }
         });
     }
-
 
     function changeStatus(e, orderId, state) {
         if (1 == state) {

@@ -4,9 +4,11 @@ import com.jll.canteen.model.OrderModel;
 import com.jll.canteen.service.QueueService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 
 /**
  * ┏━━━━━━━━━Orz━━━━━━━━━┓
@@ -76,6 +78,12 @@ public class CanteenController {
     @GetMapping("change")
     public Object forceChange(OrderModel orderModel) {
         queueService.forceChange(orderModel);
+        return "0";
+    }
+
+    @PostMapping("close")
+    public Object closeChrome() throws IOException {
+        queueService.closeChrome();
         return "0";
     }
 }

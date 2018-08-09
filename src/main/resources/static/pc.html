@@ -11,6 +11,12 @@
     <script src="./js/template-web.js"></script>
     <script src="./js/script.js"></script>
     <script src="./js/keybord.js"></script>
+
+    <style>
+        .container-full .left .left-middle .ready li {
+            width: 118px !important;
+        }
+    </style>
 </head>
 <body>
 <div class="container-full">
@@ -48,10 +54,6 @@
                 <!--排队菜品-->
             </div>
         </div>
-    </div>
-    <div class="right-bottom fl btn-group">
-        <button type="button" class="btn big-btn" style="right: 110px" id="clear">清空</button>
-        <button type="button" class="btn big-btn" style="right: 10px" id="close">退出</button>
     </div>
 </div>
 
@@ -132,8 +134,8 @@
     <div class="line today-dish">
         <ul class="">
             {{each list value index}}
-            <li style="font-size: 25px;font-weight: 800;">
-                <span>{{value.name}}</span>
+            <li style="font-size: 20px;font-weight: 800;">
+                <span name="dish">{{value.name}}</span>
                 <span class="fr">￥{{value.price}}</span>
             </li>
             {{/each}}
@@ -147,7 +149,7 @@
         {{each ready value index}}
         <li onclick="submitReady('{{value.callNo}}','{{value.id}}')" style="padding:0!important;">
             <p style="font-size:22px;font-weight: 800;margin:0!important;">{{value.callNo}}</p>
-            <p style="font-size:18px;font-weight: 800;margin:0!important;">{{value.dishName}}</p>
+            <p style="font-size:13px;font-weight: 800;margin:0!important;">{{value.dishName}}</p>
             <p style="font-size:15px;font-weight: 800;margin:0!important;">{{value.time}}</p>
         </li>
         {{/each}}
@@ -195,13 +197,13 @@
     {{if waiting.length != 0}}
     {{each waiting value index}}
     <ul class="wait-dish" style="font-size: 22px;font-weight: 600">
-        <li style="min-width: 160px!important;">{{value.name}}(已点{{value.size}}份)</li>
+        <li style="min-width: 160px!important;font-size:15px"><p style="height:10px;">{{value.name}}</p><p>({{value.size}}份)</p></li>
         {{each value.waitNo val i}}
         {{if val.callNo}}
-        <li onclick="changeStatus(event,'{{val.id}}',1)">{{val.callNo}} <br> <span
+        <li style="width: calc( 25% - 40px )" onclick="changeStatus(event,'{{val.id}}',1)">{{val.callNo}} <br> <span
                 class="ft12">{{val.time}}</span></li>
         {{else}}
-        <li onclick="changeStatus(event,'{{val.id}}',0)" style="color: red">{{val.orderNo}}<br> <span
+        <li style="width: calc( 25% - 40px )" onclick="changeStatus(event,'{{val.id}}',0)" style="color: red">{{val.orderNo}}<br> <span
                 class="ft12">{{val.time}}</span>
         </li>
         {{/if}}
@@ -242,10 +244,15 @@
         $.ajax({
             url: 'menu',
             type: 'get',
-            success: function (desh) {
+            success: function (dish) {
                 $('#TODAYDISH').html(template('TODAYDISHTPL', {
-                    list: desh
+                    list: dish
                 }));
+                const doms = $('[name=dish]');
+                dishDOM = {};
+                $.each(doms, (k, v)=> {
+                    dishDOM[$(v).text()] = $(v);
+                })
             }
         });
     }
@@ -261,8 +268,10 @@
                     'action': function () {
                         window.opener = null;
                         var w = window.open("", "_self");
-                        w.close();
                         window.close();
+                        w.close();
+                        $.post('close', {}, ()=> {
+                        });
                     }
                 },
                 '取消': {
@@ -324,7 +333,20 @@
                 $('#WAIT').html(template('WAITTPL', res));
                 $('#DOING').html(template('DOINGTPL', res));
                 $('#WAITDESH').html(template('WAITDESHTPL', res));
+                refreshMenu(res);
             }
+        });
+    }
+
+    function refreshMenu(res) {
+        const waiting = res.waiting;
+        dishDOM && waiting.forEach(v=> {
+            const node = dishDOM[v.name];
+            !!node && node.text(v.name + '(' + v.size + '份)');
+        });
+        Object.keys(dishDOM).map(k=> {
+            const node = dishDOM[k];
+            node.text().indexOf(')') == -1 && node.text(node.text() + '(0份)');
         });
     }
 

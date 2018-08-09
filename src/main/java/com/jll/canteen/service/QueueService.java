@@ -91,7 +91,15 @@ public class QueueService {
             outputStream.close();
         }
 //        Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler http://localhost:1101/");
-        Runtime.getRuntime().exec("\"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\"  --kiosk http://localhost:1101/");
+        try {
+            Runtime.getRuntime().exec("\"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\"  --kiosk http://localhost:1101/");
+        } catch (Exception ignored) {
+            try {
+                Runtime.getRuntime().exec("\"C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe\"  --kiosk http://localhost:1101/");
+            } catch (Exception ignored1) {
+
+            }
+        }
     }
 
     /**
@@ -746,5 +754,9 @@ public class QueueService {
             dir.mkdir();
         }
         return path;
+    }
+
+    public void closeChrome() throws IOException {
+        Runtime.getRuntime().exec("taskkill /im chrome.exe");
     }
 }
