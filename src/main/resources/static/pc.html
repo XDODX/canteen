@@ -147,7 +147,7 @@
     <ul class="ready">
         {{if ready.length != 0}}
         {{each ready value index}}
-        <li onclick="submitReady('{{value.callNo}}','{{value.id}}')" style="padding:0!important;">
+        <li onclick="submitReady('{{value.callNo}}','{{value.id}}')" style="padding:0!important;width: calc( 20% - 5px)!important;">
             <p style="font-size:22px;font-weight: 800;margin:0!important;">{{value.callNo}}</p>
             <p style="font-size:13px;font-weight: 800;margin:0!important;">{{value.dishName}}</p>
             <p style="font-size:15px;font-weight: 800;margin:0!important;">{{value.time}}</p>
@@ -162,8 +162,14 @@
 <script id="WATCHTPL" type="text/html">
     {{each watch}}
     <div class="col-md-11 item">
-        <div class="item-panel" style="min-height: 300px;">
-            <iframe name="myiframe" src="{{$value}}" frameborder="0" align="left" width="100%" height="100%"
+        <div class="item-panel"
+             style="width:100%;min-height:300px;position: relative;overflow:hidden;">
+            <iframe name="myiframe"
+                    src="{{$value}}"
+                    frameborder="0"
+                    height="960px"
+                    width="1280px"
+                    style="position: absolute;transform: scale(0.45,0.33);transform-origin: 0 0"
                     scrolling="no"></iframe>
         </div>
     </div>
@@ -216,6 +222,7 @@
 </script>
 <script>
     watch();
+
     function watch() {
         $.ajax({
             url: 'monitor',
@@ -227,8 +234,10 @@
             }
         });
     }
+
     //    获取背景图片
     ChangeBg();
+
     function ChangeBg() {
         $.ajax({
             url: 'background',
@@ -238,8 +247,10 @@
             }
         });
     }
+
     //    获取今日菜品
     Getmenu();
+
     function Getmenu() {
         $.ajax({
             url: 'menu',
@@ -311,6 +322,7 @@
     setInterval(function () {
         init();
     }, 1000);
+
     function init() {
         $.ajax({
             url: 'queue',
@@ -379,6 +391,7 @@
      * @param waitOrder
      */
     var waitOrder;
+
     function InputkeyBord(event, orderId) {
         stopEvent(event);
         var input1 = document.getElementById('defult');
@@ -386,6 +399,7 @@
         waitOrder = orderId;
         $("#__w_l_h_v_c_z_e_r_o_divid").SliderObject($("#__w_l_h_v_c_z_e_r_o_divid"));
     }
+
     function submitWait(orderId, value) {
         $.ajax({
             url: 'bind',
@@ -413,6 +427,7 @@
      * @param DoOrder
      */
     var DoOrder;
+
     function openDoModal(event, type) {
 
         stopEvent(event);
@@ -420,6 +435,7 @@
         $('#DOINGModal').modal('show');
         DoOrder = type;
     }
+
     function submitDo() {
         $.ajax({
             url: 'changeStatus',
@@ -445,11 +461,13 @@
      */
     var ReadyOrderNo;
     var ReadyCallNo;
+
     function openReadyModal(callNo, id) {
         $('#ReadyModal').modal('show');
         ReadyOrderNo = id;
         ReadyCallNo = callNo;
     }
+
     function submitReady(callNo, id) {
         $.ajax({
             url: 'remove',

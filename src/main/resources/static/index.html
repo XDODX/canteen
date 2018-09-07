@@ -133,7 +133,7 @@
     <ul class="ready">
         {{if ready.length != 0}}
         {{each ready value index}}
-        <li onclick="submitReady('{{value.callNo}}','{{value.id}}')" style="padding:0!important;">
+        <li onclick="submitReady('{{value.callNo}}','{{value.id}}')" style="padding:0!important;width: calc( 20% - 5px)!important;">
             <p style="font-size:22px;font-weight: 800;margin:0!important;">{{value.callNo}}</p>
             <p style="font-size:13px;font-weight: 800;margin:0!important;">{{value.dishName}}</p>
             <p style="font-size:15px;font-weight: 800;margin:0!important;">{{value.time}}</p>
@@ -189,7 +189,7 @@
         <li style="width: calc( 25% - 40px )" onclick="changeStatus(event,'{{val.id}}',1)">{{val.callNo}} <br> <span
                 class="ft12">{{val.time}}</span></li>
         {{else}}
-        <li style="width: calc( 25% - 40px )" onclick="changeStatus(event,'{{val.id}}',0)" style="color: red">{{val.orderNo}}<br> <span
+        <li style="width: calc( 25% - 40px );color: red" onclick="changeStatus(event,'{{val.id}}',0)">{{val.orderNo}}<br> <span
                 class="ft12">{{val.time}}</span>
         </li>
         {{/if}}
@@ -263,10 +263,10 @@
         });
     });
 
-//    init();
-        setInterval(function () {
-            init();
-        }, 1000);
+    //    init();
+    setInterval(function () {
+        init();
+    }, 1000);
     function init() {
         $.ajax({
             url: 'queue',
