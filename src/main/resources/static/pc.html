@@ -18,11 +18,11 @@
         }
     </style>
 </head>
-<body>
+<body style="zoom:67%">
 <div class="container-full">
     <input id="defult" class="hide" type="text">
     <div class="left fl col-xs-6">
-        <div class="left-top pd10 ">
+        <div class="left-top ">
             <p class="wait fc-white ft20 title" style="font-weight: bold">今日菜单</p>
             <div class="content row list" id="TODAYDISH">
                 <!--今日菜单-->
@@ -42,7 +42,7 @@
         </div>
     </div>
     <div class="right fl col-xs-6">
-        <div class="right-top pd10" style="min-height: 280px;border-bottom:2px solid #aaa;">
+        <div class="right-top" style="min-height: 280px;border-bottom:2px solid #aaa;">
             <p class="wait fc-white ft20 title" style="padding-left: 15px;font-weight: bold">制作中</p>
             <div class="content row list" id="DOING">
                 <!--制作中-->
@@ -147,7 +147,8 @@
     <ul class="ready">
         {{if ready.length != 0}}
         {{each ready value index}}
-        <li onclick="submitReady('{{value.callNo}}','{{value.id}}')" style="padding:0!important;width: calc( 20% - 5px)!important;">
+        <li onclick="submitReady('{{value.callNo}}','{{value.id}}')"
+            style="padding:0!important;width: calc( 20% - 5px)!important;">
             <p style="font-size:22px;font-weight: 800;margin:0!important;">{{value.callNo}}</p>
             <p style="font-size:13px;font-weight: 800;margin:0!important;">{{value.dishName}}</p>
             <p style="font-size:15px;font-weight: 800;margin:0!important;">{{value.time}}</p>
@@ -163,7 +164,7 @@
     {{each watch}}
     <div class="col-md-11 item">
         <div class="item-panel"
-             style="width:100%;min-height:300px;position: relative;overflow:hidden;">
+             style="margin-left:9%;text-align:center!important;width:100%;min-width:576px;min-height:320px;position: relative;overflow:hidden;">
             <iframe name="myiframe"
                     src="{{$value}}"
                     frameborder="0"
@@ -203,13 +204,15 @@
     {{if waiting.length != 0}}
     {{each waiting value index}}
     <ul class="wait-dish" style="font-size: 22px;font-weight: 600">
-        <li style="min-width: 160px!important;font-size:15px"><p style="height:10px;">{{value.name}}</p><p>({{value.size}}份)</p></li>
+        <li style="min-width: 160px!important;font-size:15px"><p style="height:10px;">{{value.name}}</p>
+            <p>({{value.size}}份)</p></li>
         {{each value.waitNo val i}}
         {{if val.callNo}}
         <li style="width: calc( 25% - 40px )" onclick="changeStatus(event,'{{val.id}}',1)">{{val.callNo}} <br> <span
                 class="ft12">{{val.time}}</span></li>
         {{else}}
-        <li style="width: calc( 25% - 40px )" onclick="changeStatus(event,'{{val.id}}',0)" style="color: red">{{val.orderNo}}<br> <span
+        <li style="width: calc( 25% - 40px )" onclick="changeStatus(event,'{{val.id}}',0)" style="color: red">
+            {{val.orderNo}}<br> <span
                 class="ft12">{{val.time}}</span>
         </li>
         {{/if}}
@@ -261,7 +264,7 @@
                 }));
                 const doms = $('[name=dish]');
                 dishDOM = {};
-                $.each(doms, (k, v)=> {
+                $.each(doms, (k, v) => {
                     dishDOM[$(v).text()] = $(v);
                 })
             }
@@ -281,7 +284,7 @@
                         var w = window.open("", "_self");
                         window.close();
                         w.close();
-                        $.post('close', {}, ()=> {
+                        $.post('close', {}, () => {
                         });
                     }
                 },
@@ -352,11 +355,11 @@
 
     function refreshMenu(res) {
         const waiting = res.waiting;
-        dishDOM && waiting.forEach(v=> {
+        dishDOM && waiting.forEach(v => {
             const node = dishDOM[v.name];
             !!node && node.text(v.name + '(' + v.size + '份)');
         });
-        Object.keys(dishDOM).map(k=> {
+        Object.keys(dishDOM).map(k => {
             const node = dishDOM[k];
             node.text().indexOf(')') == -1 && node.text(node.text() + '(0份)');
         });
