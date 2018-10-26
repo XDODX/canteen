@@ -330,7 +330,9 @@ public class QueueService {
                 COOKING_A_MAP.entrySet().forEach(entry -> {
                     cookPot.setName(COOKING_A_MAP.keySet().iterator().next());
                     cookPot.setPot(POT_A_NAME);
-                    cookPot.getWaitNo().addAll(entry.getValue());
+                    List<OrderModel> orderModels = entry.getValue();
+                    orderModels.sort((o1, o2) -> o2.getTime().compareTo(o1.getTime()));
+                    cookPot.getWaitNo().addAll(orderModels);
                 });
                 resultModel.getCooking().add(cookPot);
             }
@@ -339,7 +341,9 @@ public class QueueService {
                 COOKING_B_MAP.entrySet().forEach(entry -> {
                     cookPot.setName(COOKING_B_MAP.keySet().iterator().next());
                     cookPot.setPot(POT_B_NAME);
-                    cookPot.getWaitNo().addAll(entry.getValue());
+                    List<OrderModel> orderModels = entry.getValue();
+                    orderModels.sort((o1, o2) -> o2.getTime().compareTo(o1.getTime()));
+                    cookPot.getWaitNo().addAll(orderModels);
                 });
                 resultModel.getCooking().add(cookPot);
             }
