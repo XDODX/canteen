@@ -63,6 +63,9 @@ public class QueueService {
     public static final List<OrderModel> READY_LIST = Lists.newArrayList();
     // 锁
     private Lock lock = new ReentrantLock();
+    // 缓存菜品序列，保证同一菜品的优先性
+    private Map<String, Integer> ORDER_MAP = Maps.newHashMap();
+
 
     @PostConstruct
     public void init() throws IOException, ClassNotFoundException {
@@ -133,13 +136,27 @@ public class QueueService {
 ////                    USBControl.callNo(Integer.valueOf(orderNo));
 //                    return;
 //                }
-                Map<String, Integer> dishOrderMap = WAITING_LIST.stream().collect(Collectors.toMap(OrderModel::getDishName, OrderModel::getDishOrder, (order1, order2) -> order1 > order2 ? order2 : order1));
-                if (dishOrderMap.containsKey(name)) {
-                    orderModel.setDishOrder(dishOrderMap.get(name));
+//                Map<String, Integer> dishOrderMap = WAITING_LIST.stream().collect(Collectors.toMap(OrderModel::getDishName, OrderModel::getDishOrder, (order1, order2) -> order1 > order2 ? order2 : order1));
+//                if (dishOrderMap.containsKey(name)) {
+//                    orderModel.setDishOrder(dishOrderMap.get(name));
+//                } else {
+//                    orderModel.setDishOrder(order);
+//                    order++;
+//                }
+                Map<String, List<OrderModel>> dishCountMap = WAITING_LIST.stream().collect(Collectors.groupingBy(OrderModel::getDishName));
+                int dishOrder;
+                if (ORDER_MAP.containsKey(name) && ORDER_MAP.get(name) < 4) {
+                    List<OrderModel> modelList = dishCountMap.get(name);
+                    dishOrder = modelList.get(modelList.size() - 1).getDishOrder();
                 } else {
-                    orderModel.setDishOrder(order);
                     order++;
+                    dishOrder = order;
                 }
+                if (ORDER_MAP.containsKey(name) && ORDER_MAP.get(name) == 4) {
+                    ORDER_MAP.clear();
+                }
+                ORDER_MAP.put(name, ORDER_MAP.computeIfAbsent(name, s -> 0) + 1);
+                orderModel.setDishOrder(dishOrder);
 //                if (CollectionUtils.isEmpty(COOKING_A_MAP)) {
 //                    List<OrderModel> orderModelList = Lists.newArrayList();
 //                    orderModelList.add(orderModel);
@@ -225,7 +242,8 @@ public class QueueService {
                         target.setState(2);
                         orderModelList.add(target);
                         COOKING_A_MAP.put(dishName, orderModelList);
-                    } else if (COOKING_A_MAP.containsKey(dishName) && COOKING_A_MAP.get(dishName).size() < 4) {
+                    } else if (COOKING_A_MAP.containsKey(dishName) && COOKING_A_MAP.get(dishName).size() < 4
+                            && COOKING_A_MAP.get(dishName).get(0).getDishOrder() == target.getDishOrder()) {
                         WAITING_LIST.remove(target);
                         orderModelList = COOKING_A_MAP.get(dishName);
                         target.setState(2);
@@ -237,7 +255,8 @@ public class QueueService {
                         target.setState(2);
                         orderModelList.add(target);
                         COOKING_B_MAP.put(dishName, orderModelList);
-                    } else if (COOKING_B_MAP.containsKey(dishName) && COOKING_B_MAP.get(dishName).size() < 4) {
+                    } else if (COOKING_B_MAP.containsKey(dishName) && COOKING_B_MAP.get(dishName).size() < 4
+                            && COOKING_B_MAP.get(dishName).get(0).getDishOrder() == target.getDishOrder()) {
                         WAITING_LIST.remove(target);
                         orderModelList = COOKING_B_MAP.get(dishName);
                         target.setState(2);
@@ -349,17 +368,26 @@ public class QueueService {
             }
             List<ResultModel.WaitQueue> waitQueueList = Lists.newArrayList();
             // 排队中
-            WAITING_LIST.stream().collect(Collectors.groupingBy(OrderModel::getDishName)).forEach((s, orderModels) -> {
-                double size = (double) orderModels.size();
-                int page = (int) Math.ceil(size / 4);
-                for (int i = 0; i < page; i++) {
-                    ResultModel.WaitQueue waitQueue = new ResultModel.WaitQueue();
-                    waitQueue.setName(s);
-                    waitQueue.setSize((int) size);
-                    waitQueue.setSortNo(orderModels.get(0).getDishOrder());
-                    waitQueue.setWaitNo(orderModels.subList(4 * i, Math.min(4 * (i + 1), (int) size)));
-                    waitQueueList.add(waitQueue);
-                }
+//            WAITING_LIST.stream().sorted(Comparator.comparingInt(OrderModel::getDishOrder)).collect(Collectors.groupingBy(OrderModel::getDishName)).forEach((s, orderModels) -> {
+//                double size = (double) orderModels.size();
+//                int page = (int) Math.ceil(size / 4);
+//                for (int i = 0; i < page; i++) {
+//                    ResultModel.WaitQueue waitQueue = new ResultModel.WaitQueue();
+//                    waitQueue.setName(s);
+//                    waitQueue.setSize((int) size);
+//                    waitQueue.setSortNo(orderModels.get(4 * i).getDishOrder());
+//                    waitQueue.setWaitNo(orderModels.subList(4 * i, Math.min(4 * (i + 1), (int) size)));
+//                    waitQueueList.add(waitQueue);
+//                }
+//            });
+            WAITING_LIST.stream().sorted(Comparator.comparingInt(OrderModel::getDishOrder)).collect(Collectors.groupingBy(OrderModel::getDishOrder)).forEach((s, orderModels) -> {
+                OrderModel om = orderModels.get(0);
+                ResultModel.WaitQueue waitQueue = new ResultModel.WaitQueue();
+                waitQueue.setName(om.getDishName());
+                waitQueue.setSize(orderModels.size());
+                waitQueue.setSortNo(s);
+                waitQueue.setWaitNo(orderModels);
+                waitQueueList.add(waitQueue);
             });
             waitQueueList.sort((o1, o2) -> o1.getSortNo() < o2.getSortNo() ? -1 : 1);
             resultModel.getWaiting().addAll(waitQueueList);
@@ -498,6 +526,7 @@ public class QueueService {
 //            LEFT_DISH_MAP.clear();
             READY_LIST.clear();
             BACKUP_MAP = Maps.newConcurrentMap();
+            ORDER_MAP.clear();
             doBackup();
         } finally {
             lock.unlock();
@@ -544,7 +573,8 @@ public class QueueService {
                         }
                     } else {
                         COOKING_A_MAP.get(dishName).remove(target);
-                        Optional<Map.Entry<Integer, List<OrderModel>>> optional = WAITING_LIST.stream().filter(o -> o.getState() == 1 && dishName.equals(o.getDishName()))
+                        int dishOrder = target.getDishOrder();
+                        Optional<Map.Entry<Integer, List<OrderModel>>> optional = WAITING_LIST.stream().filter(o -> o.getState() == 1 && dishName.equals(o.getDishName()) && o.getDishOrder() == dishOrder)
                                 .collect(Collectors.groupingBy(OrderModel::getDishOrder)).entrySet()
                                 .stream().min((o1, o2) -> o1.getKey() < o2.getKey() ? -1 : 1);
                         if (optional.isPresent()) {
@@ -576,7 +606,8 @@ public class QueueService {
                             }
                         } else {
                             COOKING_B_MAP.get(dishName).remove(target);
-                            Optional<Map.Entry<Integer, List<OrderModel>>> optional = WAITING_LIST.stream().filter(o -> o.getState() == 1 && dishName.equals(o.getDishName()))
+                            int dishOrder = target.getDishOrder();
+                            Optional<Map.Entry<Integer, List<OrderModel>>> optional = WAITING_LIST.stream().filter(o -> o.getState() == 1 && dishName.equals(o.getDishName()) && o.getDishOrder() == dishOrder)
                                     .collect(Collectors.groupingBy(OrderModel::getDishOrder)).entrySet()
                                     .stream().min((o1, o2) -> o1.getKey() < o2.getKey() ? -1 : 1);
                             if (optional.isPresent()) {
@@ -649,6 +680,11 @@ public class QueueService {
             List<OrderModel> nextPotOrders = Lists.newArrayList(orderModelList.subList(0, Math.min(orderModelList.size(), 4)));
             map.put(name, nextPotOrders);
             nextPotOrders.forEach(WAITING_LIST::remove);
+            if (!ORDER_MAP.containsKey(name)) {
+                ORDER_MAP.clear();
+            }
+        } else {
+            ORDER_MAP.clear();
         }
     }
 
