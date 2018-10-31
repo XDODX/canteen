@@ -230,7 +230,7 @@ public class QueueService {
             while (iterator.hasNext()) {
                 OrderModel target = (OrderModel) iterator.next();
                 if (target.getId().equals(id)) {
-                    WAITING_LIST.remove(target);
+//                    WAITING_LIST.remove(target);
                     target.setCallNo(callNo);
                     String dishName = target.getDishName();
                     List<OrderModel> orderModelList;
@@ -265,7 +265,6 @@ public class QueueService {
                     } else {
                         // 修改为已绑定状态
                         target.setState(1);
-                        WAITING_LIST.add(target);
                     }
                     return;
                 }
@@ -559,6 +558,7 @@ public class QueueService {
                     List<OrderModel> dishes = COOKING_A_MAP.get(dishName);
                     if (dishes.size() == 1) {
                         COOKING_A_MAP.remove(dishName);
+                        boolean swapped = this.swapPot();
                         if (!CollectionUtils.isEmpty(WAITING_LIST)) {
                             // 确定下一锅要炒的菜
                             Optional<Map.Entry<Integer, List<OrderModel>>> optional = WAITING_LIST.stream().filter(o -> o.getState() == 1).collect(Collectors.groupingBy(OrderModel::getDishOrder)).entrySet()
@@ -567,7 +567,7 @@ public class QueueService {
                                 List<OrderModel> orderModelList = optional.get().getValue();
                                 String name = orderModelList.iterator().next().getDishName();
                                 List<OrderModel> nextPotOrders = Lists.newArrayList(orderModelList.subList(0, Math.min(orderModelList.size(), 4)));
-                                COOKING_A_MAP.put(name, nextPotOrders);
+                                List<OrderModel> val = swapped ? COOKING_B_MAP.put(name, nextPotOrders) : COOKING_A_MAP.put(name, nextPotOrders);
                                 nextPotOrders.forEach(WAITING_LIST::remove);
                             }
                         }
@@ -592,6 +592,7 @@ public class QueueService {
                         List<OrderModel> dishes = COOKING_B_MAP.get(dishName);
                         if (dishes.size() == 1) {
                             COOKING_B_MAP.remove(dishName);
+                            boolean swapped = this.swapPot();
                             if (!CollectionUtils.isEmpty(WAITING_LIST)) {
                                 // 确定下一锅要炒的菜
                                 Optional<Map.Entry<Integer, List<OrderModel>>> optional = WAITING_LIST.stream().filter(o -> o.getState() == 1).collect(Collectors.groupingBy(OrderModel::getDishOrder)).entrySet()
@@ -600,7 +601,7 @@ public class QueueService {
                                     List<OrderModel> orderModelList = optional.get().getValue();
                                     String name = orderModelList.iterator().next().getDishName();
                                     List<OrderModel> nextPotOrders = Lists.newArrayList(orderModelList.subList(0, Math.min(orderModelList.size(), 4)));
-                                    COOKING_B_MAP.put(name, nextPotOrders);
+                                    List<OrderModel> val = swapped ? COOKING_A_MAP.put(name, nextPotOrders) : COOKING_B_MAP.put(name, nextPotOrders);
                                     nextPotOrders.forEach(WAITING_LIST::remove);
                                 }
                             }
@@ -640,6 +641,21 @@ public class QueueService {
         } finally {
             lock.unlock();
         }
+    }
+
+    /**
+     * 交换锅的顺序
+     */
+    private boolean swapPot() {
+        if (COOKING_A_MAP.size() == 0) {
+            Map<String, List<OrderModel>> tmpMap = Maps.newHashMap(COOKING_B_MAP);
+            COOKING_B_MAP.clear();
+            COOKING_B_MAP.putAll(Maps.newHashMap(COOKING_A_MAP));
+            COOKING_A_MAP.clear();
+            COOKING_A_MAP.putAll(tmpMap);
+            return true;
+        }
+        return false;
     }
 
     /**
