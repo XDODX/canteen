@@ -129,7 +129,12 @@ public class QueueService {
                 int dishOrder;
                 if (ORDER_MAP.containsKey(name) && ORDER_MAP.get(name) < 4) {
                     List<OrderModel> modelList = dishCountMap.get(name);
-                    dishOrder = modelList.get(modelList.size() - 1).getDishOrder();
+                    if (!CollectionUtils.isEmpty(modelList)) {
+                        dishOrder = modelList.get(modelList.size() - 1).getDishOrder();
+                    } else {
+                        order++;
+                        dishOrder = order;
+                    }
                 } else {
                     order++;
                     dishOrder = order;
