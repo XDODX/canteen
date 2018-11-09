@@ -5,7 +5,6 @@ import com.google.common.collect.Maps;
 import com.jll.canteen.config.Config;
 import com.jll.canteen.model.OrderModel;
 import com.jll.canteen.model.ResultModel;
-import com.jll.canteen.util.LedUtil;
 import com.jll.canteen.util.USBControl;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
@@ -19,6 +18,8 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.PostConstruct;
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
@@ -38,6 +39,8 @@ public class QueueService {
     @Autowired
     private Config config;
 
+    public static final Executor executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2);
+
     public static boolean isWindows = false;
 
     static {
@@ -52,19 +55,17 @@ public class QueueService {
     // 菜品序号
     public static int order = 0;
     // A锅正在炒的队列
-    public static final Map<String, List<OrderModel>> COOKING_A_MAP = Maps.newHashMap();
+    public static final Map<String, List<OrderModel>> COOKING_A_MAP = Maps.newConcurrentMap();
     // B锅正在炒的队列
-    public static final Map<String, List<OrderModel>> COOKING_B_MAP = Maps.newHashMap();
+    public static final Map<String, List<OrderModel>> COOKING_B_MAP = Maps.newConcurrentMap();
     // 还未炒的队列
-    public static final List<OrderModel> WAITING_LIST = Lists.newArrayList();
-    //    // 剩菜
-//    public static final Map<String, Integer> LEFT_DISH_MAP = Maps.newHashMap();
+    public static final List<OrderModel> WAITING_LIST = Collections.synchronizedList(Lists.newArrayList());
     // 等待取餐
-    public static final List<OrderModel> READY_LIST = Lists.newArrayList();
+    public static final List<OrderModel> READY_LIST = Collections.synchronizedList(Lists.newArrayList());
     // 锁
     private Lock lock = new ReentrantLock();
     // 缓存菜品序列，保证同一菜品的优先性
-    private Map<String, Integer> ORDER_MAP = Maps.newHashMap();
+    private Map<String, Integer> ORDER_MAP = Maps.newConcurrentMap();
 
 
     @PostConstruct
@@ -93,7 +94,6 @@ public class QueueService {
             outputStream.flush();
             outputStream.close();
         }
-//        Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler http://localhost:1101/");
         try {
             Runtime.getRuntime().exec("\"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\"  --kiosk http://localhost:1101/");
         } catch (Exception ignored) {
@@ -119,30 +119,12 @@ public class QueueService {
             String[] datas = data.split(config.getNumberNameSplit());
             for (String pair : datas) {
                 String[] pairs = pair.split(config.getNamesSplit());
+                if (pairs.length != 2) {
+                    continue;
+                }
                 String orderNo = pairs[0];
                 String name = pairs[1];
                 OrderModel orderModel = new OrderModel(orderNo, name);
-//                // 有剩菜，直接取餐
-//                if (LEFT_DISH_MAP.containsKey(name)) {
-//                    READY_LIST.add(orderModel);
-//                    int leftNo = LEFT_DISH_MAP.get(name) - 1;
-//                    if (leftNo > 0) {
-//                        LEFT_DISH_MAP.put(name, leftNo);
-//                    } else {
-//                        LEFT_DISH_MAP.remove(name);
-//                    }
-//                    // TODO: 2018/4/9 直接取菜 不做通知
-//                    LedUtil.addMessage(orderNo);
-////                    USBControl.callNo(Integer.valueOf(orderNo));
-//                    return;
-//                }
-//                Map<String, Integer> dishOrderMap = WAITING_LIST.stream().collect(Collectors.toMap(OrderModel::getDishName, OrderModel::getDishOrder, (order1, order2) -> order1 > order2 ? order2 : order1));
-//                if (dishOrderMap.containsKey(name)) {
-//                    orderModel.setDishOrder(dishOrderMap.get(name));
-//                } else {
-//                    orderModel.setDishOrder(order);
-//                    order++;
-//                }
                 Map<String, List<OrderModel>> dishCountMap = WAITING_LIST.stream().collect(Collectors.groupingBy(OrderModel::getDishName));
                 int dishOrder;
                 if (ORDER_MAP.containsKey(name) && ORDER_MAP.get(name) < 4) {
@@ -157,27 +139,6 @@ public class QueueService {
                 }
                 ORDER_MAP.put(name, ORDER_MAP.computeIfAbsent(name, s -> 0) + 1);
                 orderModel.setDishOrder(dishOrder);
-//                if (CollectionUtils.isEmpty(COOKING_A_MAP)) {
-//                    List<OrderModel> orderModelList = Lists.newArrayList();
-//                    orderModelList.add(orderModel);
-//                    COOKING_A_MAP.put(name, orderModelList);
-//                    continue;
-//                } else if (COOKING_A_MAP.containsKey(name) && COOKING_A_MAP.get(name).size() < 4) {
-//                    List<OrderModel> orderModelList = COOKING_A_MAP.get(name);
-//                    orderModelList.add(orderModel);
-//                    COOKING_A_MAP.put(name, orderModelList);
-//                    continue;
-//                } else if (CollectionUtils.isEmpty(COOKING_B_MAP)) {
-//                    List<OrderModel> orderModelList = Lists.newArrayList();
-//                    orderModelList.add(orderModel);
-//                    COOKING_B_MAP.put(name, orderModelList);
-//                    continue;
-//                } else if (COOKING_B_MAP.containsKey(name) && COOKING_B_MAP.get(name).size() < 4) {
-//                    List<OrderModel> orderModelList = COOKING_B_MAP.get(name);
-//                    orderModelList.add(orderModel);
-//                    COOKING_B_MAP.put(name, orderModelList);
-//                    continue;
-//                }
                 WAITING_LIST.add(orderModel);
             }
         } finally {
@@ -192,7 +153,6 @@ public class QueueService {
      * @param orderModel
      */
     public void remove(OrderModel orderModel) {
-//        Integer callNo = orderModel.getCallNo();
         String id = orderModel.getId();
         if (StringUtils.isEmpty(id)) {
             return;
@@ -203,7 +163,7 @@ public class QueueService {
             while (iterator.hasNext()) {
                 OrderModel target = (OrderModel) iterator.next();
                 if (target.getId().equals(id)) {
-                    READY_LIST.remove(target);
+                    iterator.remove();
                     break;
                 }
             }
@@ -236,7 +196,7 @@ public class QueueService {
                     List<OrderModel> orderModelList;
                     // 如果有空锅，直接放入空锅排队开始炒菜
                     if (CollectionUtils.isEmpty(COOKING_A_MAP)) {
-                        WAITING_LIST.remove(target);
+                        iterator.remove();
                         orderModelList = Lists.newArrayList();
                         // 修改为正在炒状态
                         target.setState(2);
@@ -244,20 +204,20 @@ public class QueueService {
                         COOKING_A_MAP.put(dishName, orderModelList);
                     } else if (COOKING_A_MAP.containsKey(dishName) && COOKING_A_MAP.get(dishName).size() < 4
                             && COOKING_A_MAP.get(dishName).get(0).getDishOrder() == target.getDishOrder()) {
-                        WAITING_LIST.remove(target);
+                        iterator.remove();
                         orderModelList = COOKING_A_MAP.get(dishName);
                         target.setState(2);
                         orderModelList.add(target);
                         COOKING_A_MAP.put(dishName, orderModelList);
                     } else if (CollectionUtils.isEmpty(COOKING_B_MAP)) {
-                        WAITING_LIST.remove(target);
+                        iterator.remove();
                         orderModelList = Lists.newArrayList();
                         target.setState(2);
                         orderModelList.add(target);
                         COOKING_B_MAP.put(dishName, orderModelList);
                     } else if (COOKING_B_MAP.containsKey(dishName) && COOKING_B_MAP.get(dishName).size() < 4
                             && COOKING_B_MAP.get(dishName).get(0).getDishOrder() == target.getDishOrder()) {
-                        WAITING_LIST.remove(target);
+                        iterator.remove();
                         orderModelList = COOKING_B_MAP.get(dishName);
                         target.setState(2);
                         orderModelList.add(target);
@@ -270,29 +230,6 @@ public class QueueService {
                 }
             }
 
-//            COOKING_A_MAP.entrySet().forEach(entry -> {
-//                String dishName = entry.getKey();
-//                List<OrderModel> orderModelList = entry.getValue();
-//                orderModelList = orderModelList.stream().map(om -> {
-//                    if (om.getOrderNo().equals(orderNo)) {
-//                        om.setCallNo(callNo);
-//                    }
-//                    return om;
-//                }).collect(Collectors.toList());
-//                COOKING_A_MAP.put(dishName, orderModelList);
-//            });
-//
-//            COOKING_B_MAP.entrySet().forEach(entry -> {
-//                String dishName = entry.getKey();
-//                List<OrderModel> orderModelList = entry.getValue();
-//                orderModelList = orderModelList.stream().map(om -> {
-//                    if (om.getOrderNo().equals(orderNo)) {
-//                        om.setCallNo(callNo);
-//                    }
-//                    return om;
-//                }).collect(Collectors.toList());
-//                COOKING_B_MAP.put(dishName, orderModelList);
-//            });
         } finally {
             lock.unlock();
             doBackup();
@@ -335,13 +272,6 @@ public class QueueService {
         lock.lock();
         ResultModel resultModel = new ResultModel();
         try {
-//            // 剩菜
-//            LEFT_DISH_MAP.entrySet().forEach(entry -> {
-//                ResultModel.LeftDish leftDish = new ResultModel.LeftDish();
-//                leftDish.setCount(entry.getValue());
-//                leftDish.setName(entry.getKey());
-//                resultModel.getLeftDish().add(leftDish);
-//            });
             // 正在炒
             if (!CollectionUtils.isEmpty(COOKING_A_MAP)) {
                 ResultModel.CookPot cookPot = new ResultModel.CookPot();
@@ -366,19 +296,6 @@ public class QueueService {
                 resultModel.getCooking().add(cookPot);
             }
             List<ResultModel.WaitQueue> waitQueueList = Lists.newArrayList();
-            // 排队中
-//            WAITING_LIST.stream().sorted(Comparator.comparingInt(OrderModel::getDishOrder)).collect(Collectors.groupingBy(OrderModel::getDishName)).forEach((s, orderModels) -> {
-//                double size = (double) orderModels.size();
-//                int page = (int) Math.ceil(size / 4);
-//                for (int i = 0; i < page; i++) {
-//                    ResultModel.WaitQueue waitQueue = new ResultModel.WaitQueue();
-//                    waitQueue.setName(s);
-//                    waitQueue.setSize((int) size);
-//                    waitQueue.setSortNo(orderModels.get(4 * i).getDishOrder());
-//                    waitQueue.setWaitNo(orderModels.subList(4 * i, Math.min(4 * (i + 1), (int) size)));
-//                    waitQueueList.add(waitQueue);
-//                }
-//            });
             WAITING_LIST.stream().sorted(Comparator.comparingInt(OrderModel::getDishOrder)).collect(Collectors.groupingBy(OrderModel::getDishOrder)).forEach((s, orderModels) -> {
                 OrderModel om = orderModels.get(0);
                 ResultModel.WaitQueue waitQueue = new ResultModel.WaitQueue();
@@ -443,16 +360,6 @@ public class QueueService {
      * @return
      */
     public List<Map<String, String>> getMenu() {
-//        if (true) {
-//            Map<String, String> item = Maps.newHashMap();
-//            List<Map<String, String>> menus = Lists.newArrayList();
-//            item.put("name", "鱼香茄子");
-//            item.put("price", "15");
-//            for (int i = 0; i < 8; i++) {
-//                menus.add(item);
-//            }
-//            return menus;
-//        }
         String path = getBasePath() + "menu.txt";
         File menuFile = new File(path);
         if (!menuFile.exists()) {
@@ -503,13 +410,7 @@ public class QueueService {
      * @return
      */
     public String getImgUrl() {
-//        String imgPath = QueueService.getBasePath() + "img" + (QueueService.isWindows ? "\\\\" : "/");
-//        File imgDir = new File(imgPath);
-//        if (imgDir.exists() && imgDir.listFiles().length != 0) {
         return "/img/bg.jpg";
-//        } else {
-//            return "/images/bg.jpg";
-//        }
     }
 
     /**
@@ -621,19 +522,12 @@ public class QueueService {
                     }
                 }
             }
-//            for (OrderModel model : WAITING_LIST) {
-//                if (Objects.equals(model.getId(), orderModel.getId())) {
-//                    target = model;
-//                    break;
-//                }
-//            }
             if (null != target) {
                 WAITING_LIST.remove(target);
                 target.setState(3);
                 target.setTime(target.getTime());
                 READY_LIST.add(target);
                 if (null != target.getCallNo()) {
-                    LedUtil.addMessage(target.getCallNo() + "");
                     System.out.println(target.getCallNo());
                     USBControl.callNo(target.getCallNo());
                 }
@@ -673,14 +567,10 @@ public class QueueService {
                     orderModel.setTime(orderModel.getTime());
                     READY_LIST.add(orderModel);
                     if (null != orderModel.getCallNo()) {
-                        LedUtil.addMessage(orderModel.getCallNo() + "");
                         System.out.println(orderModel.getCallNo());
                         USBControl.callNo(orderModel.getCallNo());
                     }
                 });
-//                if (readyList.size() < 4) {
-//                    LEFT_DISH_MAP.put(entry.getKey(), 4 - readyList.size());
-//                }
             }
         });
         map.clear();
@@ -718,17 +608,19 @@ public class QueueService {
         }
         ObjectOutputStream outputStream = new ObjectOutputStream(
                 new FileOutputStream(backupFile));
+        try {
+            BACKUP_MAP.put("a", QueueService.COOKING_A_MAP);
+            BACKUP_MAP.put("b", QueueService.COOKING_B_MAP);
+            BACKUP_MAP.put("w", QueueService.WAITING_LIST);
+            BACKUP_MAP.put("r", QueueService.READY_LIST);
+            BACKUP_MAP.put("order", order);
+            System.out.print("保存备份:" + path);
+            outputStream.writeObject(BACKUP_MAP);
+            outputStream.close();
+            System.out.println("成功！");
+        } catch (Throwable ignored) {
 
-        BACKUP_MAP.put("a", QueueService.COOKING_A_MAP);
-        BACKUP_MAP.put("b", QueueService.COOKING_B_MAP);
-        BACKUP_MAP.put("w", QueueService.WAITING_LIST);
-//        BACKUP_MAP.put("l", QueueService.LEFT_DISH_MAP);
-        BACKUP_MAP.put("r", QueueService.READY_LIST);
-        BACKUP_MAP.put("order", order);
-        System.out.print("保存备份:" + path);
-        outputStream.writeObject(BACKUP_MAP);
-        outputStream.close();
-        System.out.println("成功！");
+        }
     }
 
     /**
@@ -763,11 +655,6 @@ public class QueueService {
             QueueService.WAITING_LIST.clear();
             QueueService.WAITING_LIST.addAll((Collection<? extends OrderModel>) BACKUP_MAP.get("w"));
         }
-//        if (BACKUP_MAP.containsKey("l")) {
-//            QueueService.LEFT_DISH_MAP.clear();
-//            QueueService.LEFT_DISH_MAP.putAll((Map<? extends String, ? extends Integer>) BACKUP_MAP.get("l"));
-//        }
-
         if (BACKUP_MAP.containsKey("r")) {
             QueueService.READY_LIST.clear();
             QueueService.READY_LIST.addAll((Collection<? extends OrderModel>) BACKUP_MAP.get("r"));
@@ -780,28 +667,20 @@ public class QueueService {
     }
 
     public void doBackup() {
-        new Thread() {
-            public void run() {
-                try {
-                    backup();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+        executor.execute(() -> {
+            try {
+                backup();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        }.start();
+        });
     }
 
     public static String getBasePath() {
-        String path = QueueService.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-//        if (path.contains("file:")) {
-//            path = path.substring(5);
-//        }
-//        path = path.contains("c.jar") ? path.substring(0, path.indexOf("c.jar")) : path;
+        String path;
         File dir;
         if (isWindows) {
-//            path = "C:\\Documents and Settings\\Administrator\\桌面\\canteen\\";
             path = "C:\\intel\\";
-//            path = path.replaceAll("/", "\\\\");
         } else {
             path = "/tmp/canteen/";
         }

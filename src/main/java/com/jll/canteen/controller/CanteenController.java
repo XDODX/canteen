@@ -2,6 +2,8 @@ package com.jll.canteen.controller;
 
 import com.jll.canteen.model.OrderModel;
 import com.jll.canteen.service.QueueService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,23 +24,28 @@ import java.io.IOException;
 @RestController
 public class CanteenController {
 
+    public static final Logger LOGGER = LoggerFactory.getLogger(CanteenController.class);
+
     @Autowired
     private QueueService queueService;
 
     @GetMapping("hurry")
     public Object hurry(String data) {
+        LOGGER.info("点菜:{}", data);
         queueService.addOrder(data);
         return "0";
     }
 
     @GetMapping("remove")
     public Object remove(OrderModel orderModel) {
+        LOGGER.info("移除:{}", orderModel.getCallNo());
         queueService.remove(orderModel);
         return "0";
     }
 
     @GetMapping("bind")
     public Object bind(OrderModel orderModel) {
+        LOGGER.info("绑定:{}", orderModel.getCallNo());
         queueService.bind(orderModel);
         return "0";
     }
@@ -77,6 +84,7 @@ public class CanteenController {
 
     @GetMapping("change")
     public Object forceChange(OrderModel orderModel) {
+        LOGGER.info("修改状态：{}", orderModel.getId());
         queueService.forceChange(orderModel);
         return "0";
     }
