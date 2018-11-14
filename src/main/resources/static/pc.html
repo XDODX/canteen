@@ -27,33 +27,33 @@
     <input id="defult" class="hide" type="text">
     <div class="left fl col-xs-6">
         <div class="left-top ">
-            <p class="wait fc-white ft20 title" style="font-weight: bold">今日菜单</p>
+            <p class="wait fc-white ft20 title" style="font-weight: bold">今日菜单/Today's menu</p>
             <div class="content row list" id="TODAYDISH">
                 <!--今日菜单-->
             </div>
         </div>
         <div class="left-middle" style="min-height:260px;">
-            <p class="wait fc-white ft20 title" style="font-weight: bold">取餐区</p>
+            <p class="wait fc-white ft20 title" style="font-weight: bold">取餐区/Finished order</p>
             <div class="content  list" id="WAIT">
                 <!--等待取餐-->
             </div>
         </div>
-        <div class="left-bottom " style="border-top:2px solid #aaa;">
-            <p class="wait fc-white ft20 title" style="font-weight: bold">监控区</p>
-            <div class="content row list" id="WATCH">
-                <!--监控区域-->
-            </div>
-        </div>
+        <!--<div class="left-bottom " style="border-top:2px solid #aaa;">-->
+        <!--<p class="wait fc-white ft20 title" style="font-weight: bold">监控区/Cooking monitor</p>-->
+        <!--<div class="content row list" id="WATCH">-->
+        <!--&lt;!&ndash;监控区域&ndash;&gt;-->
+        <!--</div>-->
+        <!--</div>-->
     </div>
     <div class="right fl col-xs-6">
         <div class="right-top" style="min-height: 280px;border-bottom:2px solid #aaa;">
-            <p class="wait fc-white ft20 title" style="padding-left: 15px;font-weight: bold">制作中</p>
+            <p class="wait fc-white ft20 title" style="padding-left: 15px;font-weight: bold">制作中/In progress</p>
             <div class="content row list" id="DOING">
                 <!--制作中-->
             </div>
         </div>
         <div class="right-bottom">
-            <p class="wait fc-white ft20 title" style="font-weight: bold">排队菜品</p>
+            <p class="wait fc-white ft20 title" style="font-weight: bold">排队菜品/Waiting order</p>
             <div class="content list" style="max-width: 100%;overflow: hidden;" id="WAITDESH">
                 <!--排队菜品-->
             </div>
@@ -164,22 +164,22 @@
     </ul>
 </script>
 <!--监控地址-->
-<script id="WATCHTPL" type="text/html">
-    {{each watch}}
-    <div class="col-md-11 item">
-        <div class="item-panel"
-             style="margin-left:9%;text-align:center!important;width:100%;min-width:576px;min-height:320px;position: relative;overflow:hidden;">
-            <iframe name="myiframe"
-                    src="{{$value}}"
-                    frameborder="0"
-                    height="960px"
-                    width="1280px"
-                    style="position: absolute;transform: scale(0.45,0.33);transform-origin: 0 0"
-                    scrolling="no"></iframe>
-        </div>
-    </div>
-    {{/each}}
-</script>
+<!--<script id="WATCHTPL" type="text/html">-->
+<!--{{each watch}}-->
+<!--<div class="col-md-11 item">-->
+<!--<div class="item-panel"-->
+<!--style="margin-left:9%;text-align:center!important;width:100%;min-width:576px;min-height:320px;position: relative;overflow:hidden;">-->
+<!--<iframe name="myiframe"-->
+<!--src="{{$value}}"-->
+<!--frameborder="0"-->
+<!--height="960px"-->
+<!--width="1280px"-->
+<!--style="position: absolute;transform: scale(0.45,0.33);transform-origin: 0 0"-->
+<!--scrolling="no"></iframe>-->
+<!--</div>-->
+<!--</div>-->
+<!--{{/each}}-->
+<!--</script>-->
 <!--制作中-->
 <script id="DOINGTPL" type="text/html">
     <div class="item">
@@ -229,7 +229,7 @@
     {{/if}}
 </script>
 <script>
-    watch();
+    // watch();
 
     function watch() {
         $.ajax({
@@ -360,14 +360,23 @@
 
     function refreshMenu(res) {
         const waiting = res.waiting;
+        const arr = [];
+        dishDOM && Object.keys(dishDOM).map(k => {
+            arr.push(k);
+        });
         dishDOM && waiting.forEach(v => {
             const node = dishDOM[v.name];
             !!node && node.text(v.name + '(' + v.size + '份)');
+            arr.indexOf(v.name) > -1 && arr.splice(arr.indexOf(v.name), 1);
         });
         Object.keys(dishDOM).map(k => {
             const node = dishDOM[k];
-            node.text().indexOf(')') == -1 && node.text(node.text() + '(0份)');
+            node.text().indexOf(')') === -1 && node.text(node.text() + '(0份)');
         });
+        arr.forEach(k => {
+            const node = dishDOM[k];
+            node.text(k + '(0份)');
+        })
     }
 
 

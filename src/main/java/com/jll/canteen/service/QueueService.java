@@ -131,6 +131,10 @@ public class QueueService {
                     List<OrderModel> modelList = dishCountMap.get(name);
                     if (!CollectionUtils.isEmpty(modelList)) {
                         dishOrder = modelList.get(modelList.size() - 1).getDishOrder();
+                    } else if (COOKING_A_MAP.containsKey(name) && !CollectionUtils.isEmpty(COOKING_A_MAP.get(name))) {
+                        dishOrder = COOKING_A_MAP.get(name).get(0).getDishOrder();
+                    } else if (COOKING_B_MAP.containsKey(name) && !CollectionUtils.isEmpty(COOKING_B_MAP.get(name))) {
+                        dishOrder = COOKING_B_MAP.get(name).get(0).getDishOrder();
                     } else {
                         order++;
                         dishOrder = order;
@@ -139,10 +143,10 @@ public class QueueService {
                     order++;
                     dishOrder = order;
                 }
+                ORDER_MAP.put(name, ORDER_MAP.computeIfAbsent(name, s -> 0) + 1);
                 if (ORDER_MAP.containsKey(name) && ORDER_MAP.get(name) == 4) {
                     ORDER_MAP.clear();
                 }
-                ORDER_MAP.put(name, ORDER_MAP.computeIfAbsent(name, s -> 0) + 1);
                 orderModel.setDishOrder(dishOrder);
                 WAITING_LIST.add(orderModel);
             }
@@ -301,14 +305,27 @@ public class QueueService {
                 resultModel.getCooking().add(cookPot);
             }
             List<ResultModel.WaitQueue> waitQueueList = Lists.newArrayList();
-            WAITING_LIST.stream().sorted(Comparator.comparingInt(OrderModel::getDishOrder)).collect(Collectors.groupingBy(OrderModel::getDishOrder)).forEach((s, orderModels) -> {
-                OrderModel om = orderModels.get(0);
-                ResultModel.WaitQueue waitQueue = new ResultModel.WaitQueue();
-                waitQueue.setName(om.getDishName());
-                waitQueue.setSize(orderModels.size());
-                waitQueue.setSortNo(s);
-                waitQueue.setWaitNo(orderModels);
-                waitQueueList.add(waitQueue);
+//            WAITING_LIST.stream().sorted(Comparator.comparingInt(OrderModel::getDishOrder)).collect(Collectors.groupingBy(OrderModel::getDishOrder)).forEach((s, orderModels) -> {
+//                OrderModel om = orderModels.get(0);
+//                ResultModel.WaitQueue waitQueue = new ResultModel.WaitQueue();
+//                waitQueue.setName(om.getDishName());
+//                waitQueue.setSize(orderModels.size());
+//                waitQueue.setSortNo(s);
+//                waitQueue.setWaitNo(orderModels);
+//                waitQueueList.add(waitQueue);
+//            });
+            // 排队中
+            WAITING_LIST.stream().collect(Collectors.groupingBy(OrderModel::getDishName)).forEach((s, orderModels) -> {
+                double size = (double) orderModels.size();
+                int page = (int) Math.ceil(size / 4);
+                for (int i = 0; i < page; i++) {
+                    ResultModel.WaitQueue waitQueue = new ResultModel.WaitQueue();
+                    waitQueue.setName(s);
+                    waitQueue.setSize((int) size);
+                    waitQueue.setSortNo(orderModels.get(0).getDishOrder());
+                    waitQueue.setWaitNo(orderModels.subList(4 * i, Math.min(4 * (i + 1), (int) size)));
+                    waitQueueList.add(waitQueue);
+                }
             });
             waitQueueList.sort((o1, o2) -> o1.getSortNo() < o2.getSortNo() ? -1 : 1);
             resultModel.getWaiting().addAll(waitQueueList);
@@ -611,9 +628,9 @@ public class QueueService {
         if (!backupFile.exists()) {
             backupFile.createNewFile();
         }
-        ObjectOutputStream outputStream = new ObjectOutputStream(
-                new FileOutputStream(backupFile));
         try {
+            ObjectOutputStream outputStream = new ObjectOutputStream(
+                    new FileOutputStream(backupFile));
             BACKUP_MAP.put("a", QueueService.COOKING_A_MAP);
             BACKUP_MAP.put("b", QueueService.COOKING_B_MAP);
             BACKUP_MAP.put("w", QueueService.WAITING_LIST);
@@ -638,37 +655,43 @@ public class QueueService {
         if (!backupFile.exists()) {
             return;
         }
-        ObjectInputStream inputStream;
         try {
-            inputStream = new ObjectInputStream(
-                    new FileInputStream(backupFile));
-        } catch (Exception e) {
-            return;
-        }
-        System.out.print("加载备份:" + path);
-        BACKUP_MAP = (Map<String, Object>) inputStream.readObject();
+            ObjectInputStream inputStream;
+            try {
+                inputStream = new ObjectInputStream(
+                        new FileInputStream(backupFile));
+            } catch (Exception e) {
+                return;
+            }
+            System.out.print("加载备份:" + path);
+            BACKUP_MAP = (Map<String, Object>) inputStream.readObject();
 
-        if (BACKUP_MAP.containsKey("a")) {
-            QueueService.COOKING_A_MAP.clear();
-            QueueService.COOKING_A_MAP.putAll((Map<String, List<OrderModel>>) BACKUP_MAP.get("a"));
+            if (BACKUP_MAP.containsKey("a")) {
+                QueueService.COOKING_A_MAP.clear();
+                QueueService.COOKING_A_MAP.putAll((Map<String, List<OrderModel>>) BACKUP_MAP.get("a"));
+            }
+            if (BACKUP_MAP.containsKey("b")) {
+                QueueService.COOKING_B_MAP.clear();
+                QueueService.COOKING_B_MAP.putAll((Map<String, List<OrderModel>>) BACKUP_MAP.get("b"));
+            }
+            if (BACKUP_MAP.containsKey("w")) {
+                QueueService.WAITING_LIST.clear();
+                QueueService.WAITING_LIST.addAll((Collection<? extends OrderModel>) BACKUP_MAP.get("w"));
+            }
+            if (BACKUP_MAP.containsKey("r")) {
+                QueueService.READY_LIST.clear();
+                QueueService.READY_LIST.addAll((Collection<? extends OrderModel>) BACKUP_MAP.get("r"));
+            }
+            if (BACKUP_MAP.containsKey("order")) {
+                order = (int) BACKUP_MAP.get("order");
+            }
+            inputStream.close();
+            System.out.println("成功！");
+        } catch (Throwable ignored) {
+            if (backupFile.exists()) {
+                backupFile.delete();
+            }
         }
-        if (BACKUP_MAP.containsKey("b")) {
-            QueueService.COOKING_B_MAP.clear();
-            QueueService.COOKING_B_MAP.putAll((Map<String, List<OrderModel>>) BACKUP_MAP.get("b"));
-        }
-        if (BACKUP_MAP.containsKey("w")) {
-            QueueService.WAITING_LIST.clear();
-            QueueService.WAITING_LIST.addAll((Collection<? extends OrderModel>) BACKUP_MAP.get("w"));
-        }
-        if (BACKUP_MAP.containsKey("r")) {
-            QueueService.READY_LIST.clear();
-            QueueService.READY_LIST.addAll((Collection<? extends OrderModel>) BACKUP_MAP.get("r"));
-        }
-        if (BACKUP_MAP.containsKey("order")) {
-            order = (int) BACKUP_MAP.get("order");
-        }
-        inputStream.close();
-        System.out.println("成功！");
     }
 
     public void doBackup() {
