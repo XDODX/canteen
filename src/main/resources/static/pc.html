@@ -27,19 +27,19 @@
     <input id="defult" class="hide" type="text">
     <div class="left fl col-xs-6">
         <div class="left-top ">
-            <p class="wait fc-white ft20 title" style="font-weight: bold">今日菜单/Today's menu</p>
+            <p class="wait fc-white title" style="font-size: 40px;font-weight: bold">今日菜单/Today's menu</p>
             <div class="content row list" id="TODAYDISH">
                 <!--今日菜单-->
             </div>
         </div>
         <div class="left-middle" style="min-height:260px;">
-            <p class="wait fc-white ft20 title" style="font-weight: bold">取餐区/Finished order</p>
+            <p class="wait fc-white title" style="font-size: 40px;font-weight: bold">取餐区/Finished order</p>
             <div class="content  list" id="WAIT">
                 <!--等待取餐-->
             </div>
         </div>
         <!--<div class="left-bottom " style="border-top:2px solid #aaa;">-->
-        <!--<p class="wait fc-white ft20 title" style="font-weight: bold">监控区/Cooking monitor</p>-->
+        <!--<p class="wait fc-white title" style="font-size: 40px;font-weight: bold">监控区/Cooking monitor</p>-->
         <!--<div class="content row list" id="WATCH">-->
         <!--&lt;!&ndash;监控区域&ndash;&gt;-->
         <!--</div>-->
@@ -47,7 +47,7 @@
     </div>
     <div class="right fl col-xs-6">
         <div class="right-top" style="min-height: 280px;border-bottom:2px solid #aaa;">
-            <p class="wait fc-white ft20 title" style="padding-left: 15px;font-weight: bold">制作中/In progress</p>
+            <p class="wait fc-white title" style="font-size: 40px;padding-left: 15px;font-weight: bold">制作中/In progress</p>
             <div class="content row list" id="DOING">
                 <!--制作中-->
             </div>
@@ -152,8 +152,8 @@
         {{if ready.length != 0}}
         {{each ready value index}}
         <li onclick="submitReady('{{value.callNo}}','{{value.id}}')"
-            style="padding:0!important;width: calc( 20% - 5px)!important;">
-            <p style="font-size:22px;font-weight: 800;margin:0!important;">{{value.callNo}}</p>
+            style="height:100px;padding:0!important;width: calc( 20% - 5px)!important;">
+            <p style="font-size:28px;font-weight: 800;margin:0!important;">{{value.callNo}}</p>
             <p style="font-size:13px;font-weight: 800;margin:0!important;">{{value.dishName}}</p>
             <p style="font-size:15px;font-weight: 800;margin:0!important;">{{value.time}}</p>
         </li>
@@ -208,15 +208,19 @@
     {{if waiting.length != 0}}
     {{each waiting value index}}
     <ul class="wait-dish" style="font-size: 24px;font-weight: 600">
-        <li style="min-width: 160px!important;font-size:24px;height: 80px;"><p style="height:18px;">{{value.name}}</p>
-            <p>({{value.size}}份)</p></li>
+        <li style="min-width: 200px!important;line-height:100px;font-size:24px;height: 100px;"><p style="height:18px;">{{value.name}}</p>
+            <!--<p>({{value.size}}份)</p>-->
+        </li>
         {{each value.waitNo val i}}
         {{if val.callNo}}
-        <li style="width: calc( 25% - 40px );height: 80px;" onclick="changeStatus(event,'{{val.id}}',1)">{{val.callNo}}
-            <br> <span
-                    class="ft12">{{val.time}}</span></li>
+        <!--<li style="width: calc( 25% - 40px );height: 80px;" onclick="changeStatus(event,'{{val.id}}',1)">{{val.callNo}}-->
+        <!--<br> <span-->
+        <!--class="ft12">{{val.time}}</span></li>-->
+        <li style="width: calc( 25% - 50px );height: 100px;" onclick="changeStatus(event,'{{val.id}}',1)">
+            <p style="font-size: 28px;margin-bottom: -6px!important;"> {{val.callNo}}</p> {{val.time}}
+        </li>
         {{else}}
-        <li style="width: calc( 25% - 40px );height: 80px;" onclick="changeStatus(event,'{{val.id}}',0)">
+        <li style="width: calc( 25% - 50px );height: 100px;" onclick="changeStatus(event,'{{val.id}}',0)">
             {{val.orderNo}}<br> <span
                 class="ft12">{{val.time}}</span>
         </li>
@@ -353,7 +357,7 @@
                 $('#WAIT').html(template('WAITTPL', res));
                 $('#DOING').html(template('DOINGTPL', res));
                 $('#WAITDESH').html(template('WAITDESHTPL', res));
-                refreshMenu(res);
+                // refreshMenu(res);
             }
         });
     }
